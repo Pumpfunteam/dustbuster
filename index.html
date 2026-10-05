@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DustBuster ($SWEEP) | Solana Rent Reclaimer & Wallet Sanitizer</title>
+  <title>DustBuster ($SWEEP) | Solana Rent Reclaimer & Sanitizer</title>
   
   <!-- Tailwind CSS & FontAwesome Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <!-- Solana Web3.js SDK via official CDN -->
+  <!-- Solana Web3.js SDK via CDN -->
   <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 
   <script>
@@ -19,10 +19,24 @@
         extend: {
           colors: {
             brand: {
-              charcoal: '#0d1117',
-              surface: '#161b22',
-              neon: '#22c55e',
-              glow: '#4ade80'
+              charcoal: '#080c10',
+              card: 'rgba(15, 23, 30, 0.75)',
+              neon: '#10b981',
+              neonHover: '#34d399',
+              emerald: '#059669',
+              cyan: '#06b6d4',
+              orange: '#f97316'
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'laser': 'scan 3s ease-in-out infinite',
+            'spin-slow': 'spin 20s linear infinite'
+          },
+          keyframes: {
+            scan: {
+              '0%, 100%': { transform: 'translateY(0%)', opacity: '0.2' },
+              '50%': { transform: 'translateY(100%)', opacity: '0.8' }
             }
           }
         }
@@ -31,289 +45,380 @@
   </script>
 
   <style>
-    .glow-neon {
-      box-shadow: 0 0 25px -4px rgba(34, 197, 94, 0.25);
+    /* Nền Lưới Không Gian Web3 */
+    .cyber-bg {
+      background-color: #06090e;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
     }
-    .text-glow {
-      text-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+
+    /* Hiệu ứng Kính Mờ Thượng Hạng */
+    .glass-panel {
+      background: rgba(13, 20, 28, 0.72);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(34, 197, 94, 0.18);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 1px 1px rgba(255, 255, 255, 0.05);
     }
-    .grid-bg {
-      background-image: radial-gradient(rgba(34, 197, 94, 0.08) 1px, transparent 1px);
-      background-size: 28px 28px;
+
+    .glass-panel-interactive:hover {
+      border-color: rgba(34, 197, 94, 0.45);
+      box-shadow: 0 12px 40px -10px rgba(16, 185, 129, 0.22);
     }
+
+    /* Chữ Neon Phát Sáng */
+    .neon-text-green {
+      text-shadow: 0 0 16px rgba(16, 185, 129, 0.6), 0 0 32px rgba(16, 185, 129, 0.25);
+    }
+    .neon-text-orange {
+      text-shadow: 0 0 16px rgba(249, 115, 22, 0.6);
+    }
+
+    /* Logo Watermark Khổng Lồ Chìm Dưới Nền */
+    .bg-watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 780px;
+      height: 780px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.035;
+      filter: drop-shadow(0 0 80px rgba(16, 185, 129, 0.8));
+    }
+
+    /* Thanh cuộn tối giản */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: #0d1117; }
-    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #484f58; }
+    ::-webkit-scrollbar-track { background: #06090e; }
+    ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #10b981; }
   </style>
 </head>
-<body class="bg-[#090d13] text-zinc-100 min-h-screen flex flex-col font-sans grid-bg selection:bg-green-500 selection:text-black">
+<body class="cyber-bg text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-emerald-500 selection:text-black relative overflow-x-hidden">
+
+  <!-- ==================== WATERMARK LOGO CHÌM PHÔNG NỀN ==================== -->
+  <div class="bg-watermark flex items-center justify-center animate-spin-slow">
+    <svg viewBox="0 0 512 512" fill="none" class="w-full h-full text-emerald-400" stroke="currentColor">
+      <!-- Outer Tech Ring -->
+      <circle cx="256" cy="256" r="230" stroke-width="6" stroke-dasharray="16 12" />
+      <circle cx="256" cy="256" r="200" stroke-width="3" opacity="0.4" />
+      <circle cx="256" cy="256" r="248" stroke-width="2" stroke-dasharray="4 8" opacity="0.6" />
+      
+      <!-- Broom / Sweeper Line Art Silhouette -->
+      <path d="M150 360 L240 270 M250 260 L380 130" stroke-width="20" stroke-linecap="round"/>
+      <path d="M370 120 L400 150" stroke-width="16" stroke-linecap="round"/>
+      <path d="M130 380 C110 400, 100 420, 140 430 C190 440, 230 400, 240 370 L150 280 Z" fill="currentColor" opacity="0.5" stroke-width="8"/>
+      
+      <!-- Energy Burst Sparks -->
+      <circle cx="160" cy="190" r="14" fill="currentColor" />
+      <circle cx="370" cy="340" r="10" fill="currentColor" />
+      <circle cx="200" cy="110" r="8" fill="currentColor" />
+    </svg>
+  </div>
+
+  <!-- Ambient Light Orbs -->
+  <div class="fixed top-[-150px] left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none z-0"></div>
+  <div class="fixed bottom-[-150px] right-[-100px] w-[500px] h-[300px] bg-cyan-500/10 rounded-full blur-[140px] pointer-events-none z-0"></div>
 
   <!-- Header -->
-  <header class="border-b border-zinc-800/80 bg-[#090d13]/90 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3.5 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-700/80 flex items-center justify-center text-green-400 text-base shadow-sm">
-        <i class="fa-solid fa-broom"></i>
+  <header class="border-b border-emerald-500/20 bg-[#06090e]/85 backdrop-blur-xl sticky top-0 z-40 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3 relative z-10">
+      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-cyan-400 p-[1.5px] flex items-center justify-center shadow-lg shadow-emerald-500/30">
+        <div class="w-full h-full bg-[#090d13] rounded-2xl flex items-center justify-center text-emerald-400 text-lg">
+          <i class="fa-solid fa-broom"></i>
+        </div>
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <span class="text-sm font-extrabold tracking-tight text-white">DustBuster</span>
-          <span class="text-[10px] font-mono font-bold bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full border border-green-500/20">$SWEEP</span>
+          <span class="text-base font-black tracking-tight text-white flex items-center gap-1.5">
+            DUSTBUSTER <span class="text-emerald-400 text-xs font-mono">⚡</span>
+          </span>
+          <span class="text-[10px] font-mono font-extrabold bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/30 tracking-wider">
+            $SWEEP
+          </span>
         </div>
-        <p class="text-[10px] text-zinc-400">Solana Rent Reclaimer & Scam Burner</p>
+        <p class="text-[10px] text-zinc-400 font-mono tracking-wide">Solana Rent Exemption & Garbage Burner</p>
       </div>
     </div>
 
     <!-- Right Controls -->
-    <div class="flex items-center gap-3">
-      <div class="hidden md:flex items-center gap-2 text-xs bg-zinc-900/80 border border-zinc-800 px-3 py-1.5 rounded-xl">
-        <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span>
-        <span class="text-zinc-400">SOL Rent Refund: <strong class="text-zinc-200 font-mono">~0.002039 SOL</strong> / Empty Account</span>
+    <div class="flex items-center gap-3 relative z-10">
+      <div class="hidden md:flex items-center gap-2.5 text-xs glass-panel px-3.5 py-1.5 rounded-2xl border-emerald-500/20">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span class="text-zinc-400">Fixed Rent Index: <strong class="text-emerald-300 font-mono">0.002039 SOL</strong> / Slot</span>
       </div>
 
-      <button id="btnConnect" onclick="openWalletModal()" class="bg-green-500 hover:bg-green-400 text-zinc-950 font-bold px-4 py-2 rounded-xl transition text-xs flex items-center gap-2 shadow-lg shadow-green-500/20 active:scale-95">
+      <button id="btnConnect" onclick="openWalletModal()" class="relative group overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-zinc-950 font-black px-4 sm:px-5 py-2.5 rounded-2xl transition duration-200 text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/25 active:scale-95">
         <i class="fa-solid fa-wallet text-sm" id="walletBtnIcon"></i>
         <span id="txtWalletBtn">Select Wallet</span>
+        <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-white/20 skew-x-12"></div>
       </button>
     </div>
   </header>
 
   <!-- Main Container -->
-  <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 flex flex-col gap-6">
+  <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 flex flex-col gap-6 relative z-10">
 
-    <!-- KPI / Flywheel Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-      <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 flex flex-col justify-between">
+    <!-- KPI / Live Protocol Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Card 1 -->
+      <div class="glass-panel glass-panel-interactive rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden group transition duration-300">
+        <div class="absolute top-0 right-0 w-28 h-28 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition"></div>
         <div class="flex items-center justify-between text-xs text-zinc-400">
-          <span>Closed Dead Accounts</span>
-          <i class="fa-solid fa-circle-check text-green-400"></i>
+          <span class="font-medium tracking-wide">Dead Accounts Wiped</span>
+          <span class="w-7 h-7 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs">
+            <i class="fa-solid fa-trash-can-arrow-up"></i>
+          </span>
         </div>
-        <div class="text-2xl font-black text-white font-mono mt-2" id="kpiClosed">164,280</div>
-        <div class="text-[10px] text-zinc-500 mt-1">Unclogging Solana ledger storage</div>
+        <div class="text-3xl font-black text-white font-mono mt-3" id="kpiClosed">168,940</div>
+        <div class="text-[11px] text-zinc-400 mt-1 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Unclogging Solana ledger
+        </div>
       </div>
 
-      <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 flex flex-col justify-between">
+      <!-- Card 2 -->
+      <div class="glass-panel glass-panel-interactive rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden group transition duration-300">
+        <div class="absolute top-0 right-0 w-28 h-28 bg-cyan-500/10 rounded-full blur-2xl group-hover:bg-cyan-500/20 transition"></div>
         <div class="flex items-center justify-between text-xs text-zinc-400">
-          <span>Total SOL Rent Refunded</span>
-          <i class="fa-solid fa-coins text-yellow-400"></i>
+          <span class="font-medium tracking-wide">Locked SOL Reclaimed</span>
+          <span class="w-7 h-7 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 text-xs">
+            <i class="fa-solid fa-coins"></i>
+          </span>
         </div>
-        <div class="text-2xl font-black text-green-400 font-mono mt-2 text-glow" id="kpiRefund">335.02 SOL</div>
-        <div class="text-[10px] text-zinc-500 mt-1">Directly credited to users' wallets</div>
+        <div class="text-3xl font-black text-emerald-400 font-mono mt-3 neon-text-green" id="kpiRefund">344.52 SOL</div>
+        <div class="text-[11px] text-zinc-400 mt-1 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span> Returned straight to wallets
+        </div>
       </div>
 
-      <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 flex flex-col justify-between">
+      <!-- Card 3 -->
+      <div class="glass-panel glass-panel-interactive rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden group transition duration-300">
+        <div class="absolute top-0 right-0 w-28 h-28 bg-orange-500/10 rounded-full blur-2xl group-hover:bg-orange-500/20 transition"></div>
         <div class="flex items-center justify-between text-xs text-zinc-400">
-          <span>$SWEEP Burned (10% Fee)</span>
-          <i class="fa-solid fa-fire text-orange-400"></i>
+          <span class="font-medium tracking-wide">$SWEEP Buyback & Burn</span>
+          <span class="w-7 h-7 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 text-xs">
+            <i class="fa-solid fa-fire"></i>
+          </span>
         </div>
-        <div class="text-2xl font-black text-orange-400 font-mono mt-2" id="kpiBurned">49,850,200</div>
-        <div class="w-full bg-zinc-800 h-1.5 rounded-full mt-2 overflow-hidden">
-          <div class="bg-orange-500 h-full w-[49.8%]"></div>
+        <div class="text-3xl font-black text-orange-400 font-mono mt-3 neon-text-orange" id="kpiBurned">51,280,400</div>
+        <div class="w-full bg-zinc-800/80 h-1.5 rounded-full mt-2.5 overflow-hidden p-[1px]">
+          <div class="bg-gradient-to-r from-orange-500 to-amber-400 h-full rounded-full w-[51.2%]"></div>
         </div>
       </div>
     </div>
 
-    <!-- Scanner Interface Card -->
-    <div class="bg-zinc-900/70 border border-zinc-800 rounded-3xl p-5 sm:p-6 flex flex-col gap-5 glow-neon">
+    <!-- Main Scanner Interface -->
+    <div class="glass-panel rounded-3xl p-5 sm:p-7 flex flex-col gap-6 relative shadow-2xl">
       
       <!-- Top Action Bar -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
-        <!-- Tabs -->
-        <div class="flex items-center gap-1.5 p-1 bg-zinc-950/80 rounded-xl border border-zinc-800 text-xs">
-          <button onclick="setTab('all')" id="tab-all" class="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-semibold transition">All (<span id="count-all">0</span>)</button>
-          <button onclick="setTab('zero')" id="tab-zero" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">Zero Bal (<span id="count-zero">0</span>)</button>
-          <button onclick="setTab('scam')" id="tab-scam" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">Spam/Scams (<span id="count-scam">0</span>)</button>
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-zinc-800/80">
+        <!-- Tabs Filter -->
+        <div class="flex items-center gap-1.5 p-1 bg-zinc-950/70 rounded-2xl border border-zinc-800/80 text-xs backdrop-blur-md">
+          <button onclick="setTab('all')" id="tab-all" class="px-3.5 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold transition">All (<span id="count-all">0</span>)</button>
+          <button onclick="setTab('zero')" id="tab-zero" class="px-3.5 py-1.5 rounded-xl text-zinc-400 hover:text-white transition">0 Balance (<span id="count-zero">0</span>)</button>
+          <button onclick="setTab('scam')" id="tab-scam" class="px-3.5 py-1.5 rounded-xl text-zinc-400 hover:text-white transition">Spam NFTs (<span id="count-scam">0</span>)</button>
         </div>
 
-        <!-- Controls -->
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-          <div id="activeWalletBadge" class="hidden text-xs bg-zinc-800/80 border border-zinc-700/80 px-2.5 py-1.5 rounded-xl text-zinc-300 font-mono">
-            <span id="badgeWalletName" class="text-green-400 font-bold mr-1"></span>
-            <span id="badgeWalletAddr"></span>
+        <!-- Controls / Active Wallet Badge -->
+        <div class="flex items-center gap-2.5 w-full sm:w-auto">
+          <div id="activeWalletBadge" class="hidden text-xs bg-emerald-950/40 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-zinc-200 font-mono flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span id="badgeWalletName" class="text-emerald-400 font-black"></span>
+            <span id="badgeWalletAddr" class="text-zinc-300"></span>
           </div>
 
-          <button onclick="triggerScan(true)" id="btnScan" class="flex-1 sm:flex-none bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-zinc-700/80 transition active:scale-95">
-            <i class="fa-solid fa-arrows-rotate" id="scanIcon"></i> Rescan
+          <button onclick="triggerScan(true)" id="btnScan" class="flex-1 sm:flex-none glass-panel glass-panel-interactive text-zinc-200 px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition active:scale-95">
+            <i class="fa-solid fa-arrows-rotate text-emerald-400" id="scanIcon"></i> Rescan
           </button>
         </div>
       </div>
 
-      <!-- Assets Table -->
-      <div class="overflow-x-auto min-h-[240px]">
+      <!-- Assets Table Container -->
+      <div class="overflow-x-auto min-h-[250px] relative">
+        <!-- Laser Scan Animation Bar (Kích hoạt khi scan) -->
+        <div id="scannerLaser" class="hidden absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_15px_#10b981] z-20 pointer-events-none animate-laser"></div>
+
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="text-zinc-500 border-b border-zinc-800/60 font-semibold">
-              <th class="pb-3 pl-3 w-8">
-                <input type="checkbox" id="chkSelectAll" checked onchange="toggleSelectAll()" class="accent-green-500 rounded cursor-pointer w-3.5 h-3.5">
+            <tr class="text-zinc-500 border-b border-zinc-800/80 font-bold tracking-wider uppercase text-[10px]">
+              <th class="pb-3.5 pl-3 w-8">
+                <input type="checkbox" id="chkSelectAll" checked onchange="toggleSelectAll()" class="accent-emerald-500 rounded cursor-pointer w-4 h-4">
               </th>
-              <th class="pb-3">Token Account / Mint</th>
-              <th class="pb-3">Classification</th>
-              <th class="pb-3">Risk Assessment</th>
-              <th class="pb-3 text-right pr-3">Recoverable SOL</th>
+              <th class="pb-3.5">Asset / Contract Identifier</th>
+              <th class="pb-3.5">Category</th>
+              <th class="pb-3.5">Risk Level</th>
+              <th class="pb-3.5 text-right pr-3">Recoverable SOL</th>
             </tr>
           </thead>
           <tbody id="tokenTableBody" class="divide-y divide-zinc-800/40 font-medium">
             <tr id="emptyScanState" class="text-zinc-500 text-center">
-              <td colspan="5" class="py-14">
-                <i class="fa-solid fa-wallet text-3xl mb-3 text-zinc-600 block animate-pulse"></i>
-                Please click <span class="text-green-400 font-semibold cursor-pointer underline" onclick="openWalletModal()">"Select Wallet"</span> to pick your wallet and inspect locked SOL rent.
+              <td colspan="5" class="py-16">
+                <div class="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-emerald-400 text-2xl mx-auto mb-3 shadow-inner">
+                  <i class="fa-solid fa-shield-cat animate-pulse"></i>
+                </div>
+                <div class="text-sm font-semibold text-zinc-300">No active wallet connected</div>
+                <p class="text-xs text-zinc-500 mt-1">Click <span class="text-emerald-400 font-bold cursor-pointer underline hover:text-emerald-300" onclick="openWalletModal()">"Select Wallet"</span> to scan dead pump.fun bags & trapped SOL rent.</p>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Action Panel & Calculation -->
-      <div class="bg-zinc-950 border border-zinc-800/90 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-5">
-        <div class="grid grid-cols-3 gap-4 sm:gap-8 w-full md:w-auto text-left">
+      <!-- Action Footer Calculation Bar -->
+      <div class="bg-[#070b10] border border-emerald-500/20 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-5 relative overflow-hidden">
+        <div class="grid grid-cols-3 gap-4 sm:gap-8 w-full md:w-auto text-left relative z-10">
           <div>
-            <div class="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Selected</div>
-            <div class="text-sm sm:text-base font-bold text-white mt-0.5" id="lblSelected">0 accounts</div>
+            <div class="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Selected</div>
+            <div class="text-base sm:text-lg font-black text-white mt-0.5" id="lblSelected">0 accounts</div>
           </div>
           <div class="border-l border-zinc-800 pl-4 sm:pl-8">
-            <div class="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Net Payout (90%)</div>
-            <div class="text-sm sm:text-base font-bold text-green-400 font-mono mt-0.5" id="lblNetPayout">0.000000 SOL</div>
+            <div class="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Net Payout (90%)</div>
+            <div class="text-base sm:text-lg font-black text-emerald-400 font-mono mt-0.5 neon-text-green" id="lblNetPayout">0.000000 SOL</div>
           </div>
           <div class="border-l border-zinc-800 pl-4 sm:pl-8">
-            <div class="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Flywheel Fee (10%)</div>
-            <div class="text-xs font-semibold text-orange-400 font-mono mt-1" id="lblFlywheelFee">0.000000 SOL</div>
-            <span class="text-[9px] text-zinc-500 block">Auto buyback & burn $SWEEP</span>
+            <div class="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Flywheel (10%)</div>
+            <div class="text-xs sm:text-sm font-bold text-orange-400 font-mono mt-1" id="lblFlywheelFee">0.000000 SOL</div>
+            <span class="text-[9px] text-zinc-500 block font-normal">Auto-burns $SWEEP</span>
           </div>
         </div>
 
-        <button id="btnSweep" onclick="executeSweep()" disabled class="w-full md:w-auto bg-green-500 hover:bg-green-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-zinc-950 font-black px-6 py-3.5 rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-lg shadow-green-500/10 active:scale-95">
-          <i class="fa-solid fa-broom text-sm"></i>
+        <button id="btnSweep" onclick="executeSweep()" disabled class="w-full md:w-auto bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-950 font-black px-7 py-3.5 rounded-2xl transition duration-200 text-xs flex items-center justify-center gap-2.5 shadow-xl shadow-emerald-500/20 active:scale-95 relative z-10">
+          <i class="fa-solid fa-broom-ball text-sm"></i>
           Sweep Dust & Claim SOL
         </button>
       </div>
     </div>
 
-    <!-- Explainer Cards -->
+    <!-- Security & Mechanism FAQ -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-zinc-400">
-      <div class="bg-zinc-900/40 border border-zinc-800/60 rounded-2xl p-4">
-        <div class="text-zinc-200 font-bold mb-1 flex items-center gap-2">
-          <i class="fa-solid fa-circle-question text-green-400"></i> Why Are You Owed Rent?
+      <div class="glass-panel rounded-2xl p-4 sm:p-5">
+        <div class="text-zinc-200 font-bold mb-1.5 flex items-center gap-2">
+          <i class="fa-solid fa-circle-question text-emerald-400"></i> Why Do You Receive Free SOL?
         </div>
-        <p class="leading-relaxed text-[11px]">When you ape coins on Solana (especially pump.fun bonding curves), creating each token account reserves ~0.002039 SOL as rent-exempt storage. When a token is sold or dumped to 0, that deposit stays locked until you invoke <code>closeAccount</code>.</p>
+        <p class="leading-relaxed text-[11px]">Solana requires roughly ~0.002039 SOL for every Token Account created. When you ape meme coins and dump them to 0, that rent remains frozen indefinitely. DustBuster executes <code>closeAccount</code> to return 100% of that native SOL deposit back to your wallet.</p>
       </div>
 
-      <div class="bg-zinc-900/40 border border-zinc-800/60 rounded-2xl p-4">
-        <div class="text-zinc-200 font-bold mb-1 flex items-center gap-2">
-          <i class="fa-solid fa-shield-halved text-cyan-400"></i> Non-Custodial Guarantee
+      <div class="glass-panel rounded-2xl p-4 sm:p-5">
+        <div class="text-zinc-200 font-bold mb-1.5 flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-cyan-400"></i> 100% Non-Custodial Protocol
         </div>
-        <p class="leading-relaxed text-[11px]">DustBuster only triggers standard SPL Token <code>closeAccount</code> instructions to refund native SOL directly back to your selected wallet. We never ask for approvals on positive-balance coins or NFTs.</p>
+        <p class="leading-relaxed text-[11px]">DustBuster only packages official Solana SPL Token instructions to close zero-balance accounts. We never request approvals, signatures for active balances, or transfer permissions for your funds.</p>
       </div>
     </div>
   </main>
 
   <!-- ==================== WALLET SELECTION MODAL ==================== -->
-  <div id="walletModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-800 max-w-md w-full rounded-3xl p-6 flex flex-col gap-5 glow-neon relative animate-in fade-in duration-200">
+  <div id="walletModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-panel max-w-md w-full rounded-3xl p-6 flex flex-col gap-5 relative animate-in fade-in duration-200 shadow-2xl border-emerald-500/30">
       
       <!-- Modal Header -->
       <div class="flex items-center justify-between pb-3 border-b border-zinc-800">
         <div>
-          <h3 class="text-base font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-wallet text-green-400"></i> Select Your Wallet
+          <h3 class="text-base font-black text-white flex items-center gap-2">
+            <i class="fa-solid fa-wallet text-emerald-400"></i> Select Target Wallet
           </h3>
-          <p class="text-xs text-zinc-400 mt-0.5">Choose the wallet you want to clean and reclaim SOL from.</p>
+          <p class="text-xs text-zinc-400 mt-0.5">Pick the wallet account you wish to sweep and reclaim SOL from.</p>
         </div>
-        <button onclick="closeWalletModal()" class="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition">
+        <button onclick="closeWalletModal()" class="w-8 h-8 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
 
-      <!-- Wallet Options Grid -->
+      <!-- Wallet List -->
       <div class="flex flex-col gap-2.5">
         <!-- 1. Phantom -->
-        <button onclick="connectSpecificWallet('phantom')" class="w-full bg-zinc-950/80 hover:bg-zinc-800/90 border border-zinc-800/80 hover:border-purple-500/50 rounded-2xl p-3.5 flex items-center justify-between transition group">
+        <button onclick="connectSpecificWallet('phantom')" class="w-full bg-zinc-950/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-purple-500/50 rounded-2xl p-3.5 flex items-center justify-between transition group">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-lg group-hover:scale-105 transition">
+            <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-lg group-hover:scale-110 transition">
               <i class="fa-solid fa-ghost"></i>
             </div>
             <div class="text-left">
               <div class="text-xs font-bold text-white group-hover:text-purple-300">Phantom</div>
-              <div class="text-[10px] text-zinc-400">Most popular Solana wallet</div>
+              <div class="text-[10px] text-zinc-400">Primary Solana Web3 Wallet</div>
             </div>
           </div>
-          <span class="text-[10px] font-mono text-zinc-500 bg-zinc-900 px-2 py-1 rounded-md border border-zinc-800">Extension / App</span>
+          <span class="text-[10px] font-mono text-zinc-400 bg-zinc-900 px-2 py-1 rounded-md border border-zinc-800">Popular</span>
         </button>
 
         <!-- 2. Solflare -->
-        <button onclick="connectSpecificWallet('solflare')" class="w-full bg-zinc-950/80 hover:bg-zinc-800/90 border border-zinc-800/80 hover:border-orange-500/50 rounded-2xl p-3.5 flex items-center justify-between transition group">
+        <button onclick="connectSpecificWallet('solflare')" class="w-full bg-zinc-950/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-orange-500/50 rounded-2xl p-3.5 flex items-center justify-between transition group">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 text-lg group-hover:scale-105 transition">
+            <div class="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 text-lg group-hover:scale-110 transition">
               <i class="fa-solid fa-sun"></i>
             </div>
             <div class="text-left">
               <div class="text-xs font-bold text-white group-hover:text-orange-300">Solflare</div>
-              <div class="text-[10px] text-zinc-400">High security Solana native</div>
+              <div class="text-[10px] text-zinc-400">High Performance Native Wallet</div>
             </div>
           </div>
-          <span class="text-[10px] font-mono text-zinc-500 bg-zinc-900 px-2 py-1 rounded-md border border-zinc-800">Extension / App</span>
+          <span class="text-[10px] font-mono text-zinc-400 bg-zinc-900 px-2 py-1 rounded-md border border-zinc-800">Secure</span>
         </button>
 
         <!-- 3. Backpack -->
-        <button onclick="connectSpecificWallet('backpack')" class="w-full bg-zinc-950/80 hover:bg-zinc-800/90 border border-zinc-800/80 hover:border-red-500/50 rounded-2xl p-3.5 flex items-center justify-between transition group">
+        <button onclick="connectSpecificWallet('backpack')" class="w-full bg-zinc-950/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-red-500/50 rounded-2xl p-3.5 flex items-center justify-between transition group">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-lg group-hover:scale-105 transition">
+            <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-lg group-hover:scale-110 transition">
               <i class="fa-solid fa-suitcase"></i>
             </div>
             <div class="text-left">
               <div class="text-xs font-bold text-white group-hover:text-red-300">Backpack</div>
-              <div class="text-[10px] text-zinc-400">Next-gen xNFT & trading wallet</div>
+              <div class="text-[10px] text-zinc-400">xNFT & Degen Suite</div>
             </div>
           </div>
-          <span class="text-[10px] font-mono text-zinc-500 bg-zinc-900 px-2 py-1 rounded-md border border-zinc-800">Extension</span>
+          <span class="text-[10px] font-mono text-zinc-400 bg-zinc-900 px-2 py-1 rounded-md border border-zinc-800">xNFT</span>
         </button>
 
         <!-- 4. OKX Wallet -->
-        <button onclick="connectSpecificWallet('okx')" class="w-full bg-zinc-950/80 hover:bg-zinc-800/90 border border-zinc-800/80 hover:border-blue-500/50 rounded-2xl p-3.5 flex items-center justify-between transition group">
+        <button onclick="connectSpecificWallet('okx')" class="w-full bg-zinc-950/80 hover:bg-zinc-800/80 border border-zinc-800 hover:border-cyan-500/50 rounded-2xl p-3.5 flex items-center justify-between transition group">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-lg group-hover:scale-105 transition">
+            <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 text-lg group-hover:scale-110 transition">
               <i class="fa-solid fa-cube"></i>
             </div>
             <div class="text-left">
-              <div class="text-xs font-bold text-white group-hover:text-blue-300">OKX Wallet</div>
-              <div class="text-[10px] text-zinc-400">Multi-chain degen portal</div>
+              <div class="text-xs font-bold text-white group-hover:text-cyan-300">OKX Wallet</div>
+              <div class="text-[10px] text-zinc-400">Multi-Chain Trading Hub</div>
             </div>
           </div>
-          <span class="text-[10px] font-mono text-zinc-500 bg-zinc-900 px-2 py-1 rounded-md border border-zinc-800">Multi-Chain</span>
+          <span class="text-[10px] font-mono text-zinc-400 bg-zinc-900 px-2 py-1 rounded-md border border-zinc-800">Multi</span>
         </button>
       </div>
 
-      <!-- Or Custom Address (View / Audit Only) -->
+      <!-- Public Address Audit -->
       <div class="pt-2 border-t border-zinc-800/80">
         <label class="text-[11px] font-semibold text-zinc-400 block mb-1.5">
-          <i class="fa-solid fa-magnifying-glass text-green-400 mr-1"></i> Or scan any public Solana address:
+          <i class="fa-solid fa-magnifying-glass text-emerald-400 mr-1"></i> Or scan any public Solana address:
         </label>
         <div class="flex items-center gap-2">
-          <input type="text" id="customWalletInput" placeholder="Paste Solana address (e.g. 7xQp9...)" class="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs font-mono text-zinc-200 focus:outline-none focus:border-green-500">
+          <input type="text" id="customWalletInput" placeholder="Paste Solana address (e.g. 7xQp9...)" class="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs font-mono text-zinc-200 focus:outline-none focus:border-emerald-500">
           <button onclick="connectCustomAddress()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition">
             Scan
           </button>
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- Success Modal (Receipt) -->
-  <div id="receiptModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-800 max-w-sm w-full rounded-2xl p-6 flex flex-col items-center text-center gap-4 glow-neon">
-      <div class="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 flex items-center justify-center text-xl">
-        <i class="fa-solid fa-check"></i>
+  <!-- ==================== RECEIPT MODAL ==================== -->
+  <div id="receiptModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-panel max-w-sm w-full rounded-3xl p-6 flex flex-col items-center text-center gap-4 relative animate-in fade-in duration-200 border-emerald-500/40">
+      <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/20">
+        <i class="fa-solid fa-check-double"></i>
       </div>
       <div>
-        <h3 class="text-base font-bold text-white">Wallet Cleaned Successfully!</h3>
-        <p class="text-xs text-zinc-400 mt-1">Dead accounts closed and native SOL rent refunded.</p>
+        <h3 class="text-base font-black text-white">Wallet Sanitized!</h3>
+        <p class="text-xs text-zinc-400 mt-1">Dead accounts wiped & SOL rent refunded instantly.</p>
       </div>
-      <div class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs flex flex-col gap-1.5 font-mono text-left">
-        <div class="flex justify-between"><span class="text-zinc-500">Accounts Closed:</span><span class="text-white" id="rcptCount">0</span></div>
-        <div class="flex justify-between"><span class="text-zinc-500">Refunded to You:</span><span class="text-green-400 font-bold" id="rcptSol">0.000000 SOL</span></div>
-        <div class="flex justify-between"><span class="text-zinc-500">Burned $SWEEP:</span><span class="text-orange-400" id="rcptSweep">~0 SWEEP</span></div>
+      <div class="w-full bg-[#080d12] border border-zinc-800 rounded-2xl p-3.5 text-xs flex flex-col gap-2 font-mono text-left">
+        <div class="flex justify-between"><span class="text-zinc-500">Accounts Closed:</span><span class="text-white font-bold" id="rcptCount">0</span></div>
+        <div class="flex justify-between"><span class="text-zinc-500">Refund Received:</span><span class="text-emerald-400 font-bold" id="rcptSol">0.000000 SOL</span></div>
+        <div class="flex justify-between"><span class="text-zinc-500">Burned $SWEEP:</span><span class="text-orange-400 font-bold" id="rcptSweep">~0 SWEEP</span></div>
       </div>
-      <button onclick="closeModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2.5 rounded-xl text-xs transition">Done</button>
+      <button onclick="closeModal()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black py-2.5 rounded-xl text-xs transition">Done</button>
     </div>
   </div>
 
@@ -325,7 +430,7 @@
     let activeTab = 'all';
     let detectedAccounts = [];
 
-    // Audio Feedback
+    // Âm thanh Click và Success tinh tế (Web Audio)
     function playAudio(type = 'click') {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -334,15 +439,15 @@
         osc.connect(gain);
         gain.connect(ctx.destination);
         if (type === 'click') {
-          osc.frequency.setValueAtTime(480, ctx.currentTime);
-          gain.gain.setValueAtTime(0.04, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.06);
+          osc.frequency.setValueAtTime(520, ctx.currentTime);
+          gain.gain.setValueAtTime(0.03, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.05);
           osc.start();
-          osc.stop(ctx.currentTime + 0.06);
+          osc.stop(ctx.currentTime + 0.05);
         } else if (type === 'success') {
-          osc.frequency.setValueAtTime(540, ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.2);
-          gain.gain.setValueAtTime(0.08, ctx.currentTime);
+          osc.frequency.setValueAtTime(580, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(920, ctx.currentTime + 0.22);
+          gain.gain.setValueAtTime(0.07, ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
           osc.start();
           osc.stop(ctx.currentTime + 0.25);
@@ -350,7 +455,6 @@
       } catch(e) {}
     }
 
-    // Modal Handlers
     function openWalletModal() {
       playAudio('click');
       if (isConnected) {
@@ -365,13 +469,11 @@
       document.getElementById('walletModal').classList.add('hidden');
     }
 
-    // Kết nối ví cụ thể theo lựa chọn của người dùng
     async function connectSpecificWallet(providerName) {
       playAudio('click');
       closeWalletModal();
 
       let targetProvider = null;
-
       if (providerName === 'phantom') {
         targetProvider = window.phantom?.solana || (window.solana?.isPhantom ? window.solana : null);
       } else if (providerName === 'solflare') {
@@ -386,8 +488,7 @@
         try {
           const resp = await targetProvider.connect();
           const pubkey = (resp?.publicKey || targetProvider.publicKey).toString();
-          currentWalletProvider = providerName.toUpperCase();
-          setConnectedState(pubkey, currentWalletProvider);
+          setConnectedState(pubkey, providerName.toUpperCase());
           return;
         } catch (err) {
           console.warn(`User cancelled ${providerName} connection:`, err);
@@ -395,28 +496,25 @@
         }
       }
 
-      // Giả lập an toàn nếu người dùng chưa cài extension đó trên máy
+      // Mô phỏng ví mượt mà cho trải nghiệm liền mạch
       const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
       let prefix = "Phan";
       if (providerName === 'solflare') prefix = "SolF";
       if (providerName === 'backpack') prefix = "Pack";
       if (providerName === 'okx') prefix = "OkxW";
 
-      userWalletAddress = `${prefix}8xK9mP${randomPart}3eF1`;
-      currentWalletProvider = providerName.toUpperCase();
-      setConnectedState(userWalletAddress, currentWalletProvider);
+      userWalletAddress = `${prefix}9zK7mP${randomPart}4eB2`;
+      setConnectedState(userWalletAddress, providerName.toUpperCase());
     }
 
-    // Quét địa chỉ tuỳ ý dán vào
     function connectCustomAddress() {
       const input = document.getElementById('customWalletInput').value.trim();
       if (!input || input.length < 20) {
-        alert("Please paste a valid Solana address!");
+        alert("Please paste a valid Solana public address!");
         return;
       }
       playAudio('click');
       closeWalletModal();
-      currentWalletProvider = "AUDIT";
       setConnectedState(input, "AUDIT");
     }
 
@@ -439,7 +537,6 @@
     function disconnectWallet() {
       isConnected = false;
       userWalletAddress = null;
-      currentWalletProvider = null;
       detectedAccounts = [];
 
       document.getElementById('txtWalletBtn').innerText = 'Select Wallet';
@@ -448,9 +545,12 @@
 
       document.getElementById('tokenTableBody').innerHTML = `
         <tr id="emptyScanState" class="text-zinc-500 text-center">
-          <td colspan="5" class="py-14">
-            <i class="fa-solid fa-wallet text-3xl mb-3 text-zinc-600 block animate-pulse"></i>
-            Please click <span class="text-green-400 font-semibold cursor-pointer underline" onclick="openWalletModal()">"Select Wallet"</span> to pick your wallet and inspect locked SOL rent.
+          <td colspan="5" class="py-16">
+            <div class="w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-emerald-400 text-2xl mx-auto mb-3 shadow-inner">
+              <i class="fa-solid fa-shield-cat animate-pulse"></i>
+            </div>
+            <div class="text-sm font-semibold text-zinc-300">No active wallet connected</div>
+            <p class="text-xs text-zinc-500 mt-1">Click <span class="text-emerald-400 font-bold cursor-pointer underline hover:text-emerald-300" onclick="openWalletModal()">"Select Wallet"</span> to scan dead pump.fun bags & trapped SOL rent.</p>
           </td>
         </tr>
       `;
@@ -465,24 +565,26 @@
       }
       playAudio('click');
       const icon = document.getElementById('scanIcon');
+      const laser = document.getElementById('scannerLaser');
       icon.classList.add('animate-spin');
+      laser.classList.remove('hidden');
 
       setTimeout(() => {
         icon.classList.remove('animate-spin');
+        laser.classList.add('hidden');
         
-        // Mẫu dữ liệu rác phổ biến từ pump.fun
         detectedAccounts = [
-          { id: '1', name: 'Claim-1000-BONK-Airdrop.sol', type: 'Phishing Voucher', tag: 'scam', risk: 'Malicious', color: 'red' },
-          { id: '2', name: 'PumpMeme-V1-DUMPED (0 Bal)', type: 'Zero Balance SPL', tag: 'zero', risk: 'Rugged', color: 'zinc' },
-          { id: '3', name: 'DeadFrog-Contract-Account', type: 'Zero Balance SPL', tag: 'zero', risk: 'Dead Dust', color: 'zinc' },
+          { id: '1', name: 'Claim-1000-BONK-Free.sol', type: 'Phishing Voucher', tag: 'scam', risk: 'Malicious', color: 'red' },
+          { id: '2', name: 'PumpMeme-V1-DUMPED (0 Bal)', type: 'Zero Balance SPL', tag: 'zero', risk: 'Dead Dust', color: 'zinc' },
+          { id: '3', name: 'DeadFrog-Contract-Account', type: 'Zero Balance SPL', tag: 'zero', risk: 'Rugged', color: 'zinc' },
           { id: '4', name: 'Telegram-Verify-Trap-NFT', type: 'Spam NFT', tag: 'scam', risk: 'Malicious', color: 'red' },
           { id: '5', name: 'PumpFun-Bag-Old (0 Bal)', type: 'Zero Balance SPL', tag: 'zero', risk: 'Dead Dust', color: 'zinc' },
-          { id: '6', name: 'Reward-AirDrop-Pass-Fake', type: 'Malicious Mint', tag: 'scam', risk: 'Malicious', color: 'red' }
+          { id: '6', name: 'Reward-AirDrop-Pass-Fake', type: 'Malicious Voucher', tag: 'scam', risk: 'Malicious', color: 'red' }
         ];
 
         updateTabCounters();
         renderTableRows();
-      }, 600);
+      }, 700);
     }
 
     function setTab(tab) {
@@ -491,9 +593,9 @@
       ['all', 'zero', 'scam'].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         if (t === tab) {
-          btn.className = "px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-semibold transition";
+          btn.className = "px-3.5 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold transition";
         } else {
-          btn.className = "px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition";
+          btn.className = "px-3.5 py-1.5 rounded-xl text-zinc-400 hover:text-white transition";
         }
       });
       renderTableRows();
@@ -519,8 +621,8 @@
       if (filtered.length === 0) {
         tbody.innerHTML = `
           <tr class="text-zinc-500 text-center">
-            <td colspan="5" class="py-12">
-              <i class="fa-solid fa-sparkles text-2xl mb-2 text-green-400 block"></i>
+            <td colspan="5" class="py-14">
+              <i class="fa-solid fa-sparkles text-2xl mb-2 text-emerald-400 block"></i>
               No trash accounts found in this category.
             </td>
           </tr>
@@ -530,23 +632,23 @@
       }
 
       tbody.innerHTML = filtered.map(item => `
-        <tr class="hover:bg-zinc-800/40 transition">
-          <td class="py-3 pl-3">
-            <input type="checkbox" checked value="${item.id}" onchange="calculateTotals()" class="item-chk accent-green-500 rounded cursor-pointer w-3.5 h-3.5">
+        <tr class="hover:bg-zinc-800/30 transition">
+          <td class="py-3.5 pl-3">
+            <input type="checkbox" checked value="${item.id}" onchange="calculateTotals()" class="item-chk accent-emerald-500 rounded cursor-pointer w-4 h-4">
           </td>
-          <td class="py-3 font-semibold text-white flex items-center gap-2.5">
-            <span class="w-6 h-6 rounded bg-zinc-800 flex items-center justify-center text-[10px] text-zinc-400">
+          <td class="py-3.5 font-bold text-white flex items-center gap-2.5">
+            <span class="w-7 h-7 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-[11px] text-zinc-400">
               <i class="fa-solid ${item.type.includes('NFT') || item.type.includes('Voucher') ? 'fa-image' : 'fa-coins'}"></i>
             </span>
             <span>${item.name}</span>
           </td>
-          <td class="py-3 text-zinc-400">${item.type}</td>
-          <td class="py-3">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.color === 'red' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-zinc-800 text-zinc-400 border border-zinc-700/60'}">
+          <td class="py-3.5 text-zinc-400 text-xs">${item.type}</td>
+          <td class="py-3.5">
+            <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-bold ${item.color === 'red' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-zinc-800/80 text-zinc-400 border border-zinc-700/60'}">
               ${item.risk}
             </span>
           </td>
-          <td class="py-3 text-right pr-3 font-mono text-green-400 font-bold">
+          <td class="py-3.5 text-right pr-3 font-mono text-emerald-400 font-black">
             +${RENT_PER_ACCOUNT.toFixed(6)} SOL
           </td>
         </tr>
@@ -600,7 +702,7 @@
         document.getElementById('receiptModal').classList.remove('hidden');
 
         btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-broom text-sm"></i> Sweep Dust & Claim SOL`;
+        btn.innerHTML = `<i class="fa-solid fa-broom-ball text-sm"></i> Sweep Dust & Claim SOL`;
 
         const checkedIds = Array.from(checked).map(c => c.value);
         detectedAccounts = detectedAccounts.filter(a => !checkedIds.includes(a.id));
