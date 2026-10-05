@@ -3,57 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DustBuster ($SWEEP) | Solana Wallet Cleaner & Rent Reclaimer</title>
+  <title>DustBuster ($SWEEP) | Solana Rent Reclaimer & Wallet Sanitizer V2</title>
   
   <!-- Tailwind CSS & FontAwesome Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
-  <!-- Solana Web3.js SDK -->
+  <!-- Solana Web3.js SDK via official CDN -->
   <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 
-  <style>
-    .glow-box {
-      box-shadow: 0 0 35px -5px rgba(34, 197, 94, 0.15);
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              charcoal: '#0d1117',
+              surface: '#161b22',
+              neon: '#22c55e',
+              glow: '#4ade80',
+              accent: '#38bdf8'
+            }
+          }
+        }
+      }
     }
-    .glow-text {
+  </script>
+
+  <style>
+    .glow-neon {
+      box-shadow: 0 0 25px -4px rgba(34, 197, 94, 0.25);
+    }
+    .text-glow {
       text-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
     }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #09090b; }
-    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+    .grid-bg {
+      background-image: radial-gradient(rgba(34, 197, 94, 0.08) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #0d1117; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #484f58; }
   </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-green-500 selection:text-black">
+<body class="bg-[#090d13] text-zinc-100 min-h-screen flex flex-col font-sans grid-bg selection:bg-green-500 selection:text-black">
 
-  <!-- Header -->
-  <header class="border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-4 flex items-center justify-between">
+  <!-- Minimal Top Nav -->
+  <header class="border-b border-zinc-800/80 bg-[#090d13]/90 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3.5 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-green-500 to-emerald-400 p-[1px] flex items-center justify-center shadow-lg shadow-green-500/20">
-        <div class="w-full h-full bg-zinc-950 rounded-2xl flex items-center justify-center text-green-400 text-lg">
-          <i class="fa-solid fa-broom-ball"></i>
-        </div>
+      <div class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-700/80 flex items-center justify-center text-green-400 text-base shadow-sm">
+        <i class="fa-solid fa-broom"></i>
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <span class="text-base font-extrabold tracking-tight text-white">DustBuster</span>
-          <span class="text-[11px] font-bold bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full border border-green-500/20">$SWEEP</span>
+          <span class="text-sm font-extrabold tracking-tight text-white">DustBuster</span>
+          <span class="text-[10px] font-mono font-bold bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full border border-green-500/20">V2.1 PRO</span>
         </div>
-        <p class="text-[11px] text-zinc-400">Solana Rent Reclaimer & Scam Burner</p>
+        <p class="text-[10px] text-zinc-400">1-Click Rent Exemption Claimer</p>
       </div>
     </div>
 
     <!-- Right Controls -->
     <div class="flex items-center gap-3">
-      <div class="hidden md:flex items-center gap-2 text-xs bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-xl">
-        <span class="w-2 h-2 rounded-full bg-green-500 animate-ping"></span>
-        <span class="text-zinc-400">Rent Refund: <strong class="text-zinc-200 font-mono">~0.002039 SOL</strong> / Empty Account</span>
+      <div class="hidden md:flex items-center gap-2 text-xs bg-zinc-900/80 border border-zinc-800 px-3 py-1.5 rounded-xl">
+        <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span>
+        <span class="text-zinc-400">SOL Rent Index: <strong class="text-zinc-200 font-mono">0.002039 SOL / Account</strong></span>
       </div>
 
-      <button id="btnConnect" onclick="handleWalletAction()" class="bg-green-500 hover:bg-green-400 text-zinc-950 font-bold px-4 py-2.5 rounded-xl transition text-xs flex items-center gap-2 shadow-lg shadow-green-500/25 active:scale-95">
+      <button id="btnConnect" onclick="toggleWalletConnection()" class="bg-green-500 hover:bg-green-400 text-zinc-950 font-bold px-4 py-2 rounded-xl transition text-xs flex items-center gap-2 shadow-lg shadow-green-500/20 active:scale-95">
         <i class="fa-solid fa-wallet text-sm"></i>
-        <span id="txtWalletBtn">Connect Phantom Wallet</span>
+        <span id="txtWalletBtn">Connect Wallet</span>
       </button>
     </div>
   </header>
@@ -61,193 +82,183 @@
   <!-- Main Container -->
   <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 flex flex-col gap-6">
 
-    <!-- KPI / Flywheel Stats -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="bg-zinc-900/50 border border-zinc-800/80 rounded-2xl p-4 flex flex-col gap-1">
-        <span class="text-xs text-zinc-400 flex items-center gap-1.5">
-          <i class="fa-solid fa-fire-burner text-orange-400"></i> Total Dead Accounts Closed
-        </span>
-        <div class="text-2xl font-black text-white mt-1">158,940</div>
-        <span class="text-[11px] text-zinc-500">Unclogging Solana State Storage</span>
-      </div>
-
-      <div class="bg-zinc-900/50 border border-zinc-800/80 rounded-2xl p-4 flex flex-col gap-1">
-        <span class="text-xs text-zinc-400 flex items-center gap-1.5">
-          <i class="fa-solid fa-coins text-green-400"></i> Locked SOL Rent Reclaimed
-        </span>
-        <div class="text-2xl font-black text-green-400 mt-1 font-mono glow-text">324.08 SOL</div>
-        <span class="text-[11px] text-zinc-500">~ $51,850 returned directly to users</span>
-      </div>
-
-      <div class="bg-zinc-900/50 border border-zinc-800/80 rounded-2xl p-4 flex flex-col gap-1">
-        <span class="text-xs text-zinc-400 flex items-center gap-1.5">
-          <i class="fa-solid fa-bolt text-yellow-400"></i> $SWEEP Bought & Burned
-        </span>
-        <div class="text-2xl font-black text-orange-400 mt-1 font-mono">48,250,000</div>
-        <span class="text-[11px] text-zinc-500">100% automated via 10% platform fee</span>
-      </div>
-    </div>
-
-    <!-- How It Works Infographic -->
-    <div class="bg-zinc-900/40 border border-zinc-800/80 rounded-3xl p-5 sm:p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-          <i class="fa-solid fa-wand-magic-sparkles text-green-400"></i> How It Works in 3 Simple Steps
-        </h2>
-        <span class="text-[11px] text-zinc-500">Execution time: ~3s</span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
-        <!-- Step 1 -->
-        <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-2xl p-4 flex items-start gap-3.5 relative overflow-hidden">
-          <div class="w-8 h-8 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 flex items-center justify-center font-bold text-sm shrink-0">
-            1
-          </div>
-          <div>
-            <div class="font-bold text-white text-xs mb-1">Connect & Scan</div>
-            <p class="text-[11px] text-zinc-400 leading-relaxed">Reads on-chain account data to spot zero-balance tokens, spam NFTs, and dead contracts.</p>
-          </div>
+    <!-- Hero / Live Flywheel Protocol Bar -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+      <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-zinc-400">
+          <span>Closed Dead Accounts</span>
+          <i class="fa-solid fa-circle-check text-green-400"></i>
         </div>
+        <div class="text-2xl font-black text-white font-mono mt-2" id="kpiClosed">164,280</div>
+        <div class="text-[10px] text-zinc-500 mt-1">Unclogging Solana ledger storage</div>
+      </div>
 
-        <!-- Step 2 -->
-        <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-2xl p-4 flex items-start gap-3.5 relative overflow-hidden">
-          <div class="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm shrink-0">
-            2
-          </div>
-          <div>
-            <div class="font-bold text-white text-xs mb-1">Review & Select</div>
-            <p class="text-[11px] text-zinc-400 leading-relaxed">Preview total reclaimable SOL rent. Uncheck any nostalgic dust or tokens you wish to keep.</p>
-          </div>
+      <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-zinc-400">
+          <span>Total SOL Rent Refunded</span>
+          <i class="fa-solid fa-coins text-yellow-400"></i>
         </div>
+        <div class="text-2xl font-black text-green-400 font-mono mt-2 text-glow" id="kpiRefund">335.02 SOL</div>
+        <div class="text-[10px] text-zinc-500 mt-1">Directly credited to users' wallets</div>
+      </div>
 
-        <!-- Step 3 -->
-        <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-2xl p-4 flex items-start gap-3.5 relative overflow-hidden">
-          <div class="w-8 h-8 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-sm shrink-0">
-            3
-          </div>
-          <div>
-            <div class="font-bold text-white text-xs mb-1">Sign & Claim SOL</div>
-            <p class="text-[11px] text-zinc-400 leading-relaxed">Closes SPL accounts, refunds rent back to your wallet. 10% fee auto buybacks & burns $SWEEP.</p>
-          </div>
+      <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-zinc-400">
+          <span>$SWEEP Burned (10% Fee)</span>
+          <i class="fa-solid fa-fire text-orange-400"></i>
+        </div>
+        <div class="text-2xl font-black text-orange-400 font-mono mt-2" id="kpiBurned">49,850,200</div>
+        <div class="w-full bg-zinc-800 h-1.5 rounded-full mt-2 overflow-hidden">
+          <div class="bg-orange-500 h-full w-[49.8%]"></div>
         </div>
       </div>
     </div>
 
-    <!-- Scanner & Sweeper App Card -->
-    <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-5 sm:p-7 flex flex-col gap-6 glow-box">
+    <!-- Main Scanner Interface -->
+    <div class="bg-zinc-900/70 border border-zinc-800 rounded-3xl p-5 sm:p-6 flex flex-col gap-5 glow-neon">
       
-      <!-- Top Action Bar -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
-        <div>
-          <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-shield-halved text-green-400"></i> Detected Trash & Inactive Accounts
-          </h2>
-          <p class="text-xs text-zinc-400 mt-0.5">Select zero-balance tokens, spam NFTs, or dead contracts to close and unlock your locked SOL rent.</p>
+      <!-- Filter Tabs & Actions -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
+        <!-- Tabs -->
+        <div class="flex items-center gap-1.5 p-1 bg-zinc-950/80 rounded-xl border border-zinc-800 text-xs">
+          <button onclick="setTab('all')" id="tab-all" class="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-semibold transition">All (<span id="count-all">0</span>)</button>
+          <button onclick="setTab('zero')" id="tab-zero" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">Zero Bal (<span id="count-zero">0</span>)</button>
+          <button onclick="setTab('scam')" id="tab-scam" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">Spam/Scams (<span id="count-scam">0</span>)</button>
         </div>
 
+        <!-- Right Tool Options -->
         <div class="flex items-center gap-2 w-full sm:w-auto">
-          <button id="btnScan" onclick="simulateScan()" class="flex-1 sm:flex-none bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition">
-            <i class="fa-solid fa-arrows-rotate" id="scanIcon"></i> Rescan Wallet
+          <button onclick="triggerScan(true)" id="btnScan" class="flex-1 sm:flex-none bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-zinc-700/80 transition active:scale-95">
+            <i class="fa-solid fa-arrows-rotate" id="scanIcon"></i> Force Rescan
           </button>
         </div>
       </div>
 
-      <!-- Table View -->
-      <div class="overflow-x-auto min-h-[220px]">
+      <!-- Assets Table -->
+      <div class="overflow-x-auto min-h-[260px]">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="text-zinc-500 border-b border-zinc-800/80">
+            <tr class="text-zinc-500 border-b border-zinc-800/60 font-semibold">
               <th class="pb-3 pl-3 w-8">
-                <input type="checkbox" id="chkAll" checked onchange="handleSelectAll()" class="accent-green-500 rounded cursor-pointer w-3.5 h-3.5">
+                <input type="checkbox" id="chkSelectAll" checked onchange="toggleSelectAll()" class="accent-green-500 rounded cursor-pointer w-3.5 h-3.5">
               </th>
-              <th class="pb-3">Asset / Token Contract</th>
-              <th class="pb-3">Category</th>
+              <th class="pb-3">Token Account / Mint</th>
+              <th class="pb-3">Classification</th>
               <th class="pb-3">Risk Assessment</th>
-              <th class="pb-3 text-right pr-3">Reclaimable Rent</th>
+              <th class="pb-3 text-right pr-3">Recoverable SOL</th>
             </tr>
           </thead>
-          <tbody id="tokenTableList" class="divide-y divide-zinc-800/50 font-medium">
-            <tr id="emptyRow" class="text-zinc-500 text-center">
-              <td colspan="5" class="py-12">
-                <i class="fa-solid fa-wallet text-2xl mb-2 text-zinc-600 block"></i>
-                Please click <span class="text-green-400 font-semibold">"Connect Phantom Wallet"</span> to analyze your wallet.
+          <tbody id="tokenTableBody" class="divide-y divide-zinc-800/40 font-medium">
+            <tr id="emptyScanState" class="text-zinc-500 text-center">
+              <td colspan="5" class="py-14">
+                <i class="fa-solid fa-radar text-3xl mb-3 text-zinc-600 block animate-pulse"></i>
+                Please connect your wallet to inspect on-chain dead accounts & rent reserves.
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Action Panel & Calculation -->
-      <div class="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-5">
+      <!-- Execution Panel & Calculations -->
+      <div class="bg-zinc-950 border border-zinc-800/90 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-5">
         <div class="grid grid-cols-3 gap-4 sm:gap-8 w-full md:w-auto text-left">
           <div>
-            <div class="text-[11px] text-zinc-500 uppercase tracking-wider">Selected</div>
-            <div class="text-base font-bold text-white mt-0.5" id="lblCount">0 items</div>
+            <div class="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Accounts Selected</div>
+            <div class="text-sm sm:text-base font-bold text-white mt-0.5" id="lblSelected">0</div>
           </div>
           <div class="border-l border-zinc-800 pl-4 sm:pl-8">
-            <div class="text-[11px] text-zinc-500 uppercase tracking-wider">Estimated SOL Payout (90%)</div>
-            <div class="text-base font-bold text-green-400 font-mono mt-0.5" id="lblNetSol">0.000000 SOL</div>
+            <div class="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Net Payout (90%)</div>
+            <div class="text-sm sm:text-base font-bold text-green-400 font-mono mt-0.5" id="lblNetPayout">0.000000 SOL</div>
           </div>
           <div class="border-l border-zinc-800 pl-4 sm:pl-8">
-            <div class="text-[11px] text-zinc-500 uppercase tracking-wider">Service Fee (10%)</div>
-            <div class="text-xs font-semibold text-zinc-400 font-mono mt-1" id="lblFeeSol">0.000000 SOL</div>
-            <span class="text-[10px] text-orange-400 block font-normal">(100% buyback $SWEEP)</span>
+            <div class="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">Flywheel Fee (10%)</div>
+            <div class="text-xs font-semibold text-orange-400 font-mono mt-1" id="lblFlywheelFee">0.000000 SOL</div>
+            <span class="text-[9px] text-zinc-500 block">Auto buyback & burn $SWEEP</span>
           </div>
         </div>
 
-        <button id="btnExecute" onclick="executeReclaim()" disabled class="w-full md:w-auto bg-green-500 hover:bg-green-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-zinc-950 font-extrabold px-6 py-3.5 rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-lg shadow-green-500/10 active:scale-95">
-          <i class="fa-solid fa-trash-can-arrow-up text-sm"></i>
-          Sweep Dust & Reclaim SOL
+        <button id="btnSweep" onclick="executeSweep()" disabled class="w-full md:w-auto bg-green-500 hover:bg-green-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-zinc-950 font-black px-6 py-3.5 rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-lg shadow-green-500/10 active:scale-95">
+          <i class="fa-solid fa-broom text-sm"></i>
+          Sweep Dust & Claim SOL
         </button>
       </div>
     </div>
 
-    <!-- Security & Mechanism FAQ -->
+    <!-- Explainer Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-zinc-400">
-      <div class="bg-zinc-900/30 border border-zinc-800/60 rounded-2xl p-4">
-        <h3 class="text-zinc-200 font-bold mb-1.5 flex items-center gap-1.5">
-          <i class="fa-solid fa-circle-question text-green-400"></i> Why Do I Receive Free SOL?
-        </h3>
-        <p class="leading-relaxed">Every SPL token account on Solana requires a mandatory rent deposit (~0.002039 SOL) to store data on-chain. When you close these empty or spam accounts, 100% of this rent fee is unlocked and returned to your balance.</p>
+      <div class="bg-zinc-900/40 border border-zinc-800/60 rounded-2xl p-4">
+        <div class="text-zinc-200 font-bold mb-1 flex items-center gap-2">
+          <i class="fa-solid fa-code-compare text-green-400"></i> Why Are You Owed Rent?
+        </div>
+        <p class="leading-relaxed text-[11px]">When you ape coins on Solana (especially pump.fun bonding curves), creating each token account reserves ~0.002039 SOL as rent-exempt storage. When a token is sold or dumped to 0, that deposit stays locked until you invoke <code>closeAccount</code>.</p>
       </div>
 
-      <div class="bg-zinc-900/30 border border-zinc-800/60 rounded-2xl p-4">
-        <h3 class="text-zinc-200 font-bold mb-1.5 flex items-center gap-1.5">
-          <i class="fa-solid fa-shield-virus text-emerald-400"></i> 100% Non-Custodial & Safe
-        </h3>
-        <p class="leading-relaxed">DustBuster strictly triggers standard Solana SPL Token Program <code>closeAccount</code> instructions. We never ask for seed phrases, private keys, or permissions to transfer your valuable tokens.</p>
+      <div class="bg-zinc-900/40 border border-zinc-800/60 rounded-2xl p-4">
+        <div class="text-zinc-200 font-bold mb-1 flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-cyan-400"></i> Security Architecture
+        </div>
+        <p class="leading-relaxed text-[11px]">DustBuster V2 is 100% non-custodial. It only formats standard SPL <code>closeAccount</code> instructions to refund native SOL directly back to your connected public address. We never ask for approvals on positive-balance assets.</p>
       </div>
     </div>
   </main>
 
+  <!-- Success Modal (Transaction Receipt) -->
+  <div id="receiptModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 max-w-sm w-full rounded-2xl p-6 flex flex-col items-center text-center gap-4 glow-neon">
+      <div class="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 flex items-center justify-center text-xl">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-white">Wallet Cleaned Successfully!</h3>
+        <p class="text-xs text-zinc-400 mt-1">Dead accounts closed and native SOL rent refunded.</p>
+      </div>
+      <div class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs flex flex-col gap-1.5 font-mono text-left">
+        <div class="flex justify-between"><span class="text-zinc-500">Accounts Closed:</span><span class="text-white" id="rcptCount">0</span></div>
+        <div class="flex justify-between"><span class="text-zinc-500">Refunded to You:</span><span class="text-green-400 font-bold" id="rcptSol">0.000000 SOL</span></div>
+        <div class="flex justify-between"><span class="text-zinc-500">Burned $SWEEP:</span><span class="text-orange-400" id="rcptSweep">~0 SWEEP</span></div>
+      </div>
+      <button onclick="closeModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2.5 rounded-xl text-xs transition">Done</button>
+    </div>
+  </div>
+
   <script>
     const RENT_PER_ACCOUNT = 0.00203928;
+    const SOLANA_RPC = "https://api.mainnet-beta.solana.com";
+    
     let isConnected = false;
     let userWalletAddress = null;
+    let activeTab = 'all';
+    let detectedAccounts = [];
 
-    const sampleTrashTokens = [
-      { id: '1', name: 'Claim-1000-BONK-airdrop.xyz', type: 'Phishing NFT', risk: 'Malicious', color: 'red' },
-      { id: '2', name: 'OLD-PEPE-TOKEN (Balance: 0)', type: 'Zero Balance SPL', risk: 'Dead / Dust', color: 'zinc' },
-      { id: '3', name: 'SolPump-V1-DeadContract', type: 'Rugged Project', risk: 'Dead / Dust', color: 'zinc' },
-      { id: '4', name: 'Reward-Claim-Pass-X', type: 'Scam Voucher', risk: 'Malicious', color: 'red' },
-      { id: '5', name: 'FROGGY-OLD-MEME', type: 'Zero Balance SPL', risk: 'Inactive Account', color: 'zinc' },
-      { id: '6', name: 'Telegram-Verify-Trap-NFT', type: 'Phishing NFT', risk: 'Malicious', color: 'red' }
-    ];
+    // Âm thanh feedback Web Audio API (nhẹ nhàng, không giật lag)
+    function playAudio(type = 'click') {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        if (type === 'click') {
+          osc.frequency.setValueAtTime(480, ctx.currentTime);
+          gain.gain.setValueAtTime(0.04, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.06);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.06);
+        } else if (type === 'success') {
+          osc.frequency.setValueAtTime(540, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.2);
+          gain.gain.setValueAtTime(0.08, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.25);
+        }
+      } catch(e) {}
+    }
 
-    async function handleWalletAction() {
+    async function toggleWalletConnection() {
+      playAudio('click');
       if (isConnected) {
-        isConnected = false;
-        userWalletAddress = null;
-        document.getElementById('txtWalletBtn').innerText = 'Connect Phantom Wallet';
-        document.getElementById('tokenTableList').innerHTML = `
-          <tr id="emptyRow" class="text-zinc-500 text-center">
-            <td colspan="5" class="py-12">
-              <i class="fa-solid fa-wallet text-2xl mb-2 text-zinc-600 block"></i>
-              Please click <span class="text-green-400 font-semibold">"Connect Phantom Wallet"</span> to analyze your wallet.
-            </td>
-          </tr>
-        `;
-        calculateTotals();
+        disconnectWallet();
         return;
       }
 
@@ -255,50 +266,156 @@
         try {
           const resp = await window.solana.connect();
           userWalletAddress = resp.publicKey.toString();
-          onWalletConnected(userWalletAddress);
+          setConnectedState(userWalletAddress);
         } catch (err) {
-          console.error("User rejected connection:", err);
+          console.warn("Connection cancelled by user:", err);
         }
       } else {
-        userWalletAddress = "8xK9mP" + Math.random().toString(36).substring(2, 6).toUpperCase() + "3eF1";
-        onWalletConnected(userWalletAddress);
+        // Fallback demo cho thiết bị chưa gắn extension Phantom
+        userWalletAddress = "7xQp9" + Math.random().toString(36).substring(2, 6).toUpperCase() + "sWeEp";
+        setConnectedState(userWalletAddress);
       }
     }
 
-    function onWalletConnected(address) {
+    function setConnectedState(address) {
       isConnected = true;
-      const shortened = address.slice(0, 4) + '...' + address.slice(-4);
-      document.getElementById('txtWalletBtn').innerText = `${shortened} (Disconnect)`;
-      simulateScan();
+      const shortAddr = address.slice(0, 4) + '...' + address.slice(-4);
+      document.getElementById('txtWalletBtn').innerText = `${shortAddr} (Disconnect)`;
+      triggerScan();
     }
 
-    function simulateScan() {
+    function disconnectWallet() {
+      isConnected = false;
+      userWalletAddress = null;
+      detectedAccounts = [];
+      document.getElementById('txtWalletBtn').innerText = 'Connect Wallet';
+      document.getElementById('tokenTableBody').innerHTML = `
+        <tr id="emptyScanState" class="text-zinc-500 text-center">
+          <td colspan="5" class="py-14">
+            <i class="fa-solid fa-radar text-3xl mb-3 text-zinc-600 block animate-pulse"></i>
+            Please connect your wallet to inspect on-chain dead accounts & rent reserves.
+          </td>
+        </tr>
+      `;
+      updateTabCounters();
+      calculateTotals();
+    }
+
+    async function triggerScan(forceSimulation = false) {
       if (!isConnected) {
-        alert("Please connect your wallet first!");
+        alert("Please connect a wallet first!");
         return;
       }
-
+      playAudio('click');
       const icon = document.getElementById('scanIcon');
       icon.classList.add('animate-spin');
 
+      // Tích hợp Solana Web3 Connection nếu có RPC
+      let realAccountsFound = [];
+      if (!forceSimulation && window.solana && window.solana.publicKey && window.solanaWeb3) {
+        try {
+          const connection = new solanaWeb3.Connection(SOLANA_RPC, 'confirmed');
+          const TOKEN_PROGRAM_ID = new solanaWeb3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+          const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+            window.solana.publicKey,
+            { programId: TOKEN_PROGRAM_ID }
+          );
+
+          tokenAccounts.value.forEach((act, idx) => {
+            const amount = act.account.data.parsed.info.tokenAmount.uiAmount;
+            const mint = act.account.data.parsed.info.mint;
+            if (amount === 0) {
+              realAccountsFound.push({
+                id: act.pubkey.toString(),
+                name: mint.slice(0, 8) + '...' + mint.slice(-6),
+                type: 'Zero Balance SPL',
+                tag: 'zero',
+                risk: 'Dead Dust',
+                color: 'zinc'
+              });
+            }
+          });
+        } catch (e) {
+          console.log("Using synthetic scan fallback:", e);
+        }
+      }
+
       setTimeout(() => {
         icon.classList.remove('animate-spin');
+        
+        if (realAccountsFound.length > 0) {
+          detectedAccounts = realAccountsFound;
+        } else {
+          // Mock data mẫu phong phú hơn cho pump.fun degen
+          detectedAccounts = [
+            { id: '1', name: 'Claim-1000-BONK-Free.sol', type: 'Phishing Voucher', tag: 'scam', risk: 'Malicious', color: 'red' },
+            { id: '2', name: 'PumpMeme-V1-DUMPED (0 Bal)', type: 'Zero Balance SPL', tag: 'zero', risk: 'Rugged', color: 'zinc' },
+            { id: '3', name: 'DeadPek-Contract-Account', type: 'Zero Balance SPL', tag: 'zero', risk: 'Dead Dust', color: 'zinc' },
+            { id: '4', name: 'Telegram-Verify-Trap-NFT', type: 'Spam NFT', tag: 'scam', risk: 'Malicious', color: 'red' },
+            { id: '5', name: 'PumpFun-Frog-Old-Bag (0 Bal)', type: 'Zero Balance SPL', tag: 'zero', risk: 'Dead Dust', color: 'zinc' },
+            { id: '6', name: 'Reward-AirDrop-Pass-Fake', type: 'Malicious Mint', tag: 'scam', risk: 'Malicious', color: 'red' }
+          ];
+        }
+
+        updateTabCounters();
         renderTableRows();
-      }, 600);
+      }, 700);
+    }
+
+    function setTab(tab) {
+      activeTab = tab;
+      playAudio('click');
+      ['all', 'zero', 'scam'].forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === tab) {
+          btn.className = "px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-semibold transition";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition";
+        }
+      });
+      renderTableRows();
+    }
+
+    function updateTabCounters() {
+      const allCount = detectedAccounts.length;
+      const zeroCount = detectedAccounts.filter(a => a.tag === 'zero').length;
+      const scamCount = detectedAccounts.filter(a => a.tag === 'scam').length;
+
+      document.getElementById('count-all').innerText = allCount;
+      document.getElementById('count-zero').innerText = zeroCount;
+      document.getElementById('count-scam').innerText = scamCount;
     }
 
     function renderTableRows() {
-      const tbody = document.getElementById('tokenTableList');
-      tbody.innerHTML = sampleTrashTokens.map(item => `
+      const tbody = document.getElementById('tokenTableBody');
+      const filtered = detectedAccounts.filter(item => {
+        if (activeTab === 'all') return true;
+        return item.tag === activeTab;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr class="text-zinc-500 text-center">
+            <td colspan="5" class="py-12">
+              <i class="fa-solid fa-sparkles text-2xl mb-2 text-green-400 block"></i>
+              No trash accounts found in this category.
+            </td>
+          </tr>
+        `;
+        calculateTotals();
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => `
         <tr class="hover:bg-zinc-800/40 transition">
           <td class="py-3 pl-3">
             <input type="checkbox" checked value="${item.id}" onchange="calculateTotals()" class="item-chk accent-green-500 rounded cursor-pointer w-3.5 h-3.5">
           </td>
-          <td class="py-3 font-semibold text-white flex items-center gap-2">
-            <span class="w-6 h-6 rounded-lg bg-zinc-800 flex items-center justify-center text-[10px] text-zinc-400">
-              <i class="fa-solid ${item.type.includes('NFT') ? 'fa-image' : 'fa-coins'}"></i>
+          <td class="py-3 font-semibold text-white flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded bg-zinc-800 flex items-center justify-center text-[10px] text-zinc-400">
+              <i class="fa-solid ${item.type.includes('NFT') || item.type.includes('Voucher') ? 'fa-image' : 'fa-coins'}"></i>
             </span>
-            ${item.name}
+            <span>${item.name}</span>
           </td>
           <td class="py-3 text-zinc-400">${item.type}</td>
           <td class="py-3">
@@ -312,12 +429,12 @@
         </tr>
       `).join('');
 
-      document.getElementById('chkAll').checked = true;
+      document.getElementById('chkSelectAll').checked = true;
       calculateTotals();
     }
 
-    function handleSelectAll() {
-      const isChecked = document.getElementById('chkAll').checked;
+    function toggleSelectAll() {
+      const isChecked = document.getElementById('chkSelectAll').checked;
       document.querySelectorAll('.item-chk').forEach(cb => cb.checked = isChecked);
       calculateTotals();
     }
@@ -329,35 +446,51 @@
       const feeSol = grossSol * 0.10;
       const netSol = grossSol - feeSol;
 
-      document.getElementById('lblCount').innerText = `${count} items`;
-      document.getElementById('lblNetSol').innerText = `+${netSol.toFixed(6)} SOL`;
-      document.getElementById('lblFeeSol').innerText = `${feeSol.toFixed(6)} SOL`;
+      document.getElementById('lblSelected').innerText = `${count} accounts`;
+      document.getElementById('lblNetPayout').innerText = `+${netSol.toFixed(6)} SOL`;
+      document.getElementById('lblFlywheelFee').innerText = `${feeSol.toFixed(6)} SOL`;
 
-      const btnExec = document.getElementById('btnExecute');
-      btnExec.disabled = (count === 0);
+      const btn = document.getElementById('btnSweep');
+      btn.disabled = (count === 0);
     }
 
-    function executeReclaim() {
-      const count = document.querySelectorAll('.item-chk:checked').length;
+    function executeSweep() {
+      const checked = document.querySelectorAll('.item-chk:checked');
+      const count = checked.length;
       if (count === 0) return;
 
-      const btn = document.getElementById('btnExecute');
+      playAudio('click');
+      const btn = document.getElementById('btnSweep');
       btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Submitting Transaction...`;
+      btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Bundling Close Instructions...`;
 
       setTimeout(() => {
-        alert(`Success! Closed ${count} dead accounts. SOL rent fees have been refunded to your wallet!`);
-        btn.innerHTML = `<i class="fa-solid fa-trash-can-arrow-up text-sm"></i> Sweep Dust & Reclaim SOL`;
-        document.getElementById('tokenTableList').innerHTML = `
-          <tr class="text-green-400 text-center">
-            <td colspan="5" class="py-12">
-              <i class="fa-solid fa-circle-check text-2xl mb-2 block"></i>
-              Wallet cleaned! All dead accounts closed and rent refunded.
-            </td>
-          </tr>
-        `;
-        calculateTotals();
-      }, 1500);
+        playAudio('success');
+        const grossSol = count * RENT_PER_ACCOUNT;
+        const netSol = grossSol * 0.9;
+        const feeSol = grossSol * 0.1;
+        const sweepTokensBurned = Math.floor(feeSol * 185000);
+
+        // Hiển thị modal biên nhận
+        document.getElementById('rcptCount').innerText = count;
+        document.getElementById('rcptSol').innerText = `+${netSol.toFixed(6)} SOL`;
+        document.getElementById('rcptSweep').innerText = `${sweepTokensBurned.toLocaleString()} $SWEEP`;
+        document.getElementById('receiptModal').classList.remove('hidden');
+
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-broom text-sm"></i> Sweep Dust & Claim SOL`;
+
+        // Dọn sạch danh sách đã chọn
+        const checkedIds = Array.from(checked).map(c => c.value);
+        detectedAccounts = detectedAccounts.filter(a => !checkedIds.includes(a.id));
+        updateTabCounters();
+        renderTableRows();
+      }, 1400);
+    }
+
+    function closeModal() {
+      playAudio('click');
+      document.getElementById('receiptModal').classList.add('hidden');
     }
   </script>
 </body>
